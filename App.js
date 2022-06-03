@@ -1,41 +1,39 @@
 import React, { useState, useEffect }from 'react'
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View , Pressable, FlatList} from 'react-native';
+import { StyleSheet, Text, View , Pressable, FlatList, Image} from 'react-native';
 import api from './src/services/api';
-import Filme from './src/Pages/Filme';
 
-export default class App extends React.Component {
-  constructor (props){
-    super(props)
-    this.state = {
-      filmes: []
-    }
-  }
+export default function App (){
 
-  async componentDidMount(){
-    const response = await api.get('r-api/?api=filmes')
-    this.setState({
-      filmes: response.data
-    });
-  }
+  const [filmes,setFilmes] = useState([])
 
-  render(){
+
+  const getFilme = async () => {
+    const {data} = await api.get('r-api/?api=filmes')
+    setFilmes(data)
+  } 
+  const renderItem = ({ item }) => (
+    <View>
+      {/* <Image source = {require(item.foto)}/>  TENHO DIFICULDADES EM PUXAR IMAGEM*/}
+      <Text> Filme: {item.nome} </Text>
+      <Text style = {{marginBottom:20}}>Sinopse: {item.sinopse}</Text>
+    </View>
+  );
+  
     return (
     <View style={styles.container}>
-      <FlatList 
-        data={this.state.filmes}
-        keyExtractor={item => toString(item.id)}
-        renderItem={({item})=> <Filme data={item}/>}
-        />
-
-
-       <Pressable style ={styles.botao}> 
+       <Pressable style ={styles.botao} onPress={getFilme}> 
           <Text style = {{color:'#fff'}}>isso e um texto</Text>
        </Pressable>
+
+       <FlatList
+        data={filmes}
+        renderItem={renderItem}
+        keyExtractor={filmes.id}
+      />
       <StatusBar style="auto" />
     </View>
     );
-  }
 }
 
 const styles = StyleSheet.create({
